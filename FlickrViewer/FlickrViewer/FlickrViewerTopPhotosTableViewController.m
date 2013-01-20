@@ -8,24 +8,107 @@
 
 #import "FlickrViewerTopPhotosTableViewController.h"
 #import "FlickrViewerTopPhotoViewController.h"
+#import "FlickrViewerMapViewController.h"
 #import "FlickrFetcher.h"
+#import "FlickrViewerMapViewController.h"
+#import "FlickrViewerAnnotation.h"
 
-@interface FlickrViewerTopPhotosTableViewController () @property (nonatomic, strong) NSArray *topPhotos;
+@interface FlickrViewerTopPhotosTableViewController () <FlickrViewerMapViewDelegate>
+@property (nonatomic, strong) NSArray *topPhotos;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *viewInMapBarButton;
 @end
 
 @implementation FlickrViewerTopPhotosTableViewController
 
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (NSArray *)getAnnotations
 {
-    ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).photo = [self.topPhotos objectAtIndex:[self.tableView indexPathForCell:sender].row];
-    ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).navigationItem.title = ((UITableViewCell *)sender).textLabel.text;
+    NSMutableArray *annotations = [[NSMutableArray alloc] init];
+    [self.topPhotos enumerateObjectsUsingBlock:^(NSDictionary *photo, NSUInteger index, BOOL *stop){
+        FlickrViewerAnnotation *annotation = [[FlickrViewerAnnotation alloc]
+                                              initWithLocation:CLLocationCoordinate2DMake([[photo objectForKey:FLICKR_LATITUDE] doubleValue],[[photo objectForKey:FLICKR_LONGITUDE] doubleValue])
+                                              title:[photo objectForKey:FLICKR_PHOTO_TITLE]
+                                              subtitle:[photo valueForKeyPath:FLICKR_PHOTO_DESCRIPTION]
+                                              pinColor:MKPinAnnotationColorRed];
+        annotation.tag = photo;
+        [annotations addObject:annotation];
+    }];
+    return annotations;
 }
 
-- (id)initWithStyle:(UITableViewStyle)style
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
+    MKAnnotationView *backup = view;
+    dispatch_queue_t downloadThumbnail = dispatch_queue_create("download thumbnail", NULL);
+    dispatch_async(downloadThumbnail, ^{
+        NSData *data = [NSData dataWithContentsOfURL:[FlickrFetcher
+                                                      urlForPhoto:((FlickrViewerAnnotation *)(view.annotation)).tag
+                                                      format:FlickrPhotoFormatSquare]];
+        UIImage *image = [UIImage imageWithData:data];
+        
+        if (view == backup){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [((UIImageView *)(view.leftCalloutAccessoryView)) setImage:image];
+                view.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+            });
+        }
+    });
+}
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+{
+    MKPinAnnotationView *annotationView =
+    (MKPinAnnotationView*)[mapView dequeueReusableAnnotationViewWithIdentifier:@"pinView"];
+    
+    if (!annotationView){
+        annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pinView"];
+        annotationView.canShowCallout = YES;
+        annotationView.leftCalloutAccessoryView = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,31,31)];
+        annotationView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+    }
+    
+    annotationView.pinColor = ((FlickrViewerAnnotation *)annotation).pinColor;
+    annotationView.animatesDrop = YES;
+    annotationView.canShowCallout = YES;
+    annotationView.annotation = annotation;
+    [((UIImageView *)(annotationView.leftCalloutAccessoryView)) setImage:nil];
+    return annotationView;
+}
+
+- (void)delegatePrepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).photo =
+    ((FlickrViewerAnnotation *)(((MKAnnotationView *)sender).annotation)).tag;
+    
+    ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).navigationItem.title =
+    ((FlickrViewerAnnotation *)(((MKAnnotationView *)sender).annotation)).title;
+}
+
+- (void)controller:(UIViewController *)controller mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control{
+    if (![self splitViewController]){
+        [controller performSegueWithIdentifier:@"View Top Photo" sender:view];
+    }
+    else{
+        NSLog(@"%@", ((FlickrViewerAnnotation *)((MKAnnotationView *)view).annotation).tag);
+        ((FlickrViewerTopPhotoViewController *)([[self splitViewController].viewControllers lastObject])).photo =
+            ((FlickrViewerAnnotation *)((MKAnnotationView *)view).annotation).tag;
+        [((FlickrViewerTopPhotoViewController *)([[self splitViewController].viewControllers lastObject])) setNewImage];
+    }
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"Map of place"]){
+        ((FlickrViewerMapViewController *)(segue.destinationViewController)).delegate = self;
+    }
+    else if ([segue.identifier isEqualToString:@"View Top Photo"]){
+        ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).photo = [self.topPhotos objectAtIndex:[self.tableView indexPathForCell:sender].row];
+        ((FlickrViewerTopPhotoViewController *)(segue.destinationViewController)).navigationItem.title = ((UITableViewCell *)sender).textLabel.text;
+    }
+}
+
+- (id)initWithStyle:(UITableViewStyle)style{
     self = [super initWithStyle:style];
     if (self) {
-        // Custom initialization
     }
     return self;
 }
@@ -33,14 +116,31 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    self.topPhotos = [FlickrFetcher photosInPlace:self.place maxResults:50];
 }
 
-- (void)didReceiveMemoryWarning
+- (void)viewWillAppear:(BOOL)animated
 {
+    UIActivityIndicatorView *indicator =
+        [[UIActivityIndicatorView alloc]
+         initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:indicator];
+    [[self navigationItem] setRightBarButtonItem:barButton];
+    indicator.hidesWhenStopped = YES;
+    [indicator startAnimating];
+    
+    dispatch_queue_t downloadPhotos = dispatch_queue_create("download top photos", NULL);
+    
+    dispatch_async(downloadPhotos, ^{
+        self.topPhotos = [FlickrFetcher photosInPlace:self.place maxResults:50];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+            [indicator stopAnimating];
+            [[self navigationItem] setRightBarButtonItem:self.viewInMapBarButton];
+        });
+    });
+}
+- (void)didReceiveMemoryWarning{
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Table view data source
@@ -81,56 +181,13 @@
     return cell;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 #pragma mark - Table view delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Navigation logic may go here. Create and push another view controller.
-    /*
-     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-     // ...
-     // Pass the selected object to the new view controller.
-     [self.navigationController pushViewController:detailViewController animated:YES];
-     */
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    ((FlickrViewerTopPhotoViewController *)([[self splitViewController].viewControllers lastObject])).photo =
+    
+        [self.topPhotos objectAtIndex:indexPath.row];
+    [((FlickrViewerTopPhotoViewController *)([[self splitViewController].viewControllers lastObject])) setNewImage];
 }
 
 @end

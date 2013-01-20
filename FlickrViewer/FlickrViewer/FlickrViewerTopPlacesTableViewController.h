@@ -9,5 +9,4 @@
 #import <UIKit/UIKit.h>
 
 @interface FlickrViewerTopPlacesTableViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
-
 @end

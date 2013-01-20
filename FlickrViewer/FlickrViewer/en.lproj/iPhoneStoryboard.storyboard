@@ -55,7 +55,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="E7T-G9-CEl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1026" y="390"/>
+            <point key="canvasLocation" x="-2785" y="-381"/>
         </scene>
         <!--Flickr Viewer Top Places Table View Controller-->
         <scene sceneID="31C-hK-tPn">
@@ -98,32 +98,42 @@
                             <outlet property="delegate" destination="8i2-bN-yAY" id="Nwn-5T-4jl"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="LkJ-JB-L75"/>
+                    <navigationItem key="navigationItem" id="LkJ-JB-L75">
+                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="Ewq-Hs-uzN">
+                            <connections>
+                                <segue destination="cZS-gv-wby" kind="push" identifier="Map Of Places" id="N97-Dp-04v"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="view" destination="RrW-cu-ZQp" id="UKp-5l-JSU"/>
+                        <outlet property="viewInMapBarButton" destination="Ewq-Hs-uzN" id="C8r-R2-kZZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1LU-ac-F0G" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1123" y="-368"/>
+            <point key="canvasLocation" x="-2778" y="-1071"/>
         </scene>
         <!--Flickr Viewer Top Photo View Controller-->
         <scene sceneID="xM2-BF-edN">
             <objects>
                 <viewController autoresizesArchivedViewToFullSize="NO" id="T5D-0k-byk" customClass="FlickrViewerTopPhotoViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BCd-go-yMh">
-                        <rect key="frame" x="0.0" y="64" width="320" height="455"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView multipleTouchEnabled="YES" contentMode="scaleToFill" indicatorStyle="black" minimumZoomScale="0.20000000000000001" maximumZoomScale="2" id="ub3-qC-zVw">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <imageView autoresizesSubviews="NO" userInteractionEnabled="NO" contentMode="TopLeft" id="HpO-KJ-wsJ">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                     </imageView>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" style="gray" id="kKo-l2-s8U">
+                                        <rect key="frame" x="168" y="217" width="20" height="20"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </activityIndicatorView>
                                 </subviews>
                                 <connections>
                                     <outlet property="delegate" destination="T5D-0k-byk" id="aID-yp-NPI"/>
@@ -135,19 +145,20 @@
                     <navigationItem key="navigationItem" id="dPG-PZ-koA"/>
                     <connections>
                         <outlet property="imageView" destination="HpO-KJ-wsJ" id="FyD-dz-f9v"/>
+                        <outlet property="indicator" destination="kKo-l2-s8U" id="6ia-HQ-5re"/>
                         <outlet property="scrollView" destination="ub3-qC-zVw" id="2Hs-vR-CUN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cZh-Yk-ZMT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-379" y="396"/>
+            <point key="canvasLocation" x="-1350" y="-117"/>
         </scene>
         <!--Flickr Viewer Top Photos Table View Controller-->
         <scene sceneID="yut-hQ-G7g">
             <objects>
                 <tableViewController id="GCJ-CN-Tno" customClass="FlickrViewerTopPhotosTableViewController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="v1L-pR-vh4">
-                        <rect key="frame" x="0.0" y="64" width="320" height="455"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -183,11 +194,49 @@
                             <outlet property="delegate" destination="GCJ-CN-Tno" id="6BM-a9-9z2"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="pcL-Ph-LhI"/>
+                    <navigationItem key="navigationItem" id="pcL-Ph-LhI">
+                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="Bz4-tw-sB6">
+                            <connections>
+                                <segue destination="cZS-gv-wby" kind="push" identifier="Map of place" id="zHM-m5-rwC"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="viewInMapBarButton" destination="Bz4-tw-sB6" id="Zd7-gp-y9U"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="k2V-Az-Fmj" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-747" y="-368"/>
+            <point key="canvasLocation" x="-2140" y="-753"/>
+        </scene>
+        <!--Flickr Viewer Map View Controller-->
+        <scene sceneID="92I-Yf-y6z">
+            <objects>
+                <viewController id="cZS-gv-wby" customClass="FlickrViewerMapViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Gy1-bX-WPc">
+                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" id="b4C-GZ-FbQ">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <connections>
+                                    <outlet property="delegate" destination="cZS-gv-wby" id="8Pe-5M-hJH"/>
+                                </connections>
+                            </mapView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="SRQ-oe-BtZ"/>
+                    <connections>
+                        <outlet property="mapView" destination="b4C-GZ-FbQ" id="HM6-2y-Fxl"/>
+                        <segue destination="T5D-0k-byk" kind="push" identifier="View Top Photo" id="eIo-5d-Bmm"/>
+                        <segue destination="GCJ-CN-Tno" kind="push" identifier="Map Of Places" id="72f-Yp-x69"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="deI-DR-A3J" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1643" y="-1471"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="4Kp-YW-PkL">
@@ -206,13 +255,13 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OSZ-Ng-MW1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1984" y="-85"/>
+            <point key="canvasLocation" x="-3931" y="-481"/>
         </scene>
-        <!--Navigation Controller - Top Places-->
+        <!--Navigation Controller-->
         <scene sceneID="akB-9m-4xb">
             <objects>
                 <navigationController id="P6L-BZ-ajO" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Top Places" id="xO8-Hl-oNa"/>
+                    <tabBarItem key="tabBarItem" systemItem="bookmarks" id="xO8-Hl-oNa"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="LyL-hP-b1n">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -225,13 +274,13 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PVF-eg-p1P" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1559" y="-349"/>
+            <point key="canvasLocation" x="-3282" y="-1092"/>
         </scene>
-        <!--Navigation Controller - Recent-->
+        <!--Navigation Controller-->
         <scene sceneID="JLA-ZE-hBQ">
             <objects>
                 <navigationController id="iv0-JQ-G3L" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Recent" id="6QR-FZ-spR"/>
+                    <tabBarItem key="tabBarItem" systemItem="recents" id="6QR-FZ-spR"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="TBu-Hp-XW2">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -244,10 +293,16 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MRt-P9-OWE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1552" y="390"/>
+            <point key="canvasLocation" x="-3311" y="-381"/>
         </scene>
     </scenes>
     <classes>
+        <class className="FlickrViewerMapViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/FlickrViewerMapViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
+            </relationships>
+        </class>
         <class className="FlickrViewerRecentPhotosTableViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/FlickrViewerRecentPhotosTableViewController.h"/>
         </class>
@@ -255,14 +310,21 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/FlickrViewerTopPhotoViewController.h"/>
             <relationships>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="indicator" candidateClass="UIActivityIndicatorView"/>
                 <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
             </relationships>
         </class>
         <class className="FlickrViewerTopPhotosTableViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/FlickrViewerTopPhotosTableViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="viewInMapBarButton" candidateClass="UIBarButtonItem"/>
+            </relationships>
         </class>
         <class className="FlickrViewerTopPlacesTableViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/FlickrViewerTopPlacesTableViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="viewInMapBarButton" candidateClass="UIBarButtonItem"/>
+            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
@@ -271,6 +333,8 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="rTn-NA-kQk"/>
+        <segue reference="eIo-5d-Bmm"/>
+        <segue reference="zHM-m5-rwC"/>
+        <segue reference="72f-Yp-x69"/>
     </inferredMetricsTieBreakers>
 </document>

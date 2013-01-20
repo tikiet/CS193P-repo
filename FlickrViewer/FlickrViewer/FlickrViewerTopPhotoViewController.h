@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface FlickrViewerTopPhotoViewController : UIViewController <UIScrollViewDelegate>
+@interface FlickrViewerTopPhotoViewController : UIViewController <UIScrollViewDelegate, UISplitViewControllerDelegate>
 @property (nonatomic, weak) NSDictionary *photo;
+- (void) setNewImage;
 @end
