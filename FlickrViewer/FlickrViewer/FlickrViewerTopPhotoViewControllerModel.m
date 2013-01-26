@@ -9,6 +9,7 @@
 #import "FlickrViewerTopPhotoViewControllerModel.h"
 
 #define FLICKR_VIEWER_CACHE_KEY @"cached.photo"
+#define CACHED_DIR_NAME @"cache"
 
 @interface FlickrViewerTopPhotoViewControllerModel()
 + (void)clearOldData;
@@ -62,14 +63,14 @@
     NSFileManager *manager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *path = paths[0];
-    NSString *dir = [path stringByAppendingPathComponent:@"cache"];
+    NSString *dir = [path stringByAppendingPathComponent:CACHED_DIR_NAME];
     NSString *filePath = [dir stringByAppendingPathComponent:name];
     
     NSLog(@"get file at %@", filePath);
     NSData *data = [manager contentsAtPath:filePath];
     
     if (data)
-        NSLog(@"sucdess");
+        NSLog(@"success");
     else
         NSLog(@"failed");
     return data;
@@ -80,7 +81,7 @@
     NSFileManager *manager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *path = paths[0];
-    NSString *dir = [path stringByAppendingPathComponent:@"cache"];
+    NSString *dir = [path stringByAppendingPathComponent:CACHED_DIR_NAME];
     
     if (![manager fileExistsAtPath:dir]){
         NSLog(@"create dir");

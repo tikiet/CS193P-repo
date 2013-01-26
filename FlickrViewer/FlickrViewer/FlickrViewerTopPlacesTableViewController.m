@@ -12,12 +12,14 @@
 #import "FlickrFetcher.h"
 #import "FlickrViewerMapViewController.h"
 #import "FlickrViewerAnnotation.h"
+#import "VacationHelper.h"
 
 @interface FlickrViewerTopPlacesTableViewController () <FlickrViewerMapViewDelegate>
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *viewInMapBarButton;
 @property (nonatomic, strong) NSArray *topPlaces;
 @property (nonatomic, strong) NSMutableDictionary *groupedTopPlaces;
 @property (nonatomic, strong) NSMutableArray *groupedTopPlacesNames;
+@property (nonatomic, strong) UIManagedDocument *document;
 @end
 
 @implementation FlickrViewerTopPlacesTableViewController
@@ -81,8 +83,26 @@
     return self;
 }
 
+- (void)setupDocument{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[self.document.fileURL path]]){
+        [self.document saveToURL:self.document.fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success){
+            [VacationHelper setCurrentContext:self.document.managedObjectContext];
+        }];
+    }else if(self.document.documentState == UIDocumentStateClosed){
+        [self.document openWithCompletionHandler:^(BOOL success){
+            [VacationHelper setCurrentContext:self.document.managedObjectContext];
+        }];
+    }else if (self.document.documentState == UIDocumentStateNormal){
+        [VacationHelper setCurrentContext:self.document.managedObjectContext];
+    }
+}
+
 - (void)viewDidLoad{
     [super viewDidLoad];
+    self.document = [VacationHelper currentDocument];
+    if (!self.document)
+        self.document = [VacationHelper sharedManagedDocumentForVacation:DEFAULT_VACATION_NAME];
+    [self setupDocument];
 }
 
 - (void)viewWillAppear:(BOOL)animated
